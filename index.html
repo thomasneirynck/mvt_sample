@@ -5,16 +5,48 @@
     <script src="https://cdn.maptiler.com/maplibre-gl-js/v1.13.0-rc.4/mapbox-gl.js"></script>
     <link href="https://cdn.maptiler.com/maplibre-gl-js/v1.13.0-rc.4/mapbox-gl.css" rel="stylesheet" />
     <style>
-        #map {position: absolute; top: 0; right: 0; bottom: 0; left: 0;}
+        #map {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1
+        }
+
+        #form {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.6);
+            z-index: 2;
+            padding: 2
+        }
     </style>
 </head>
 <body>
+<div id="form">
+    <label for="index">Elasticsearch index name</label>
+    <input type="text" id="index"/>
+    <label for="geometry_field">Field name of geometry</label>
+    <input type="text" id="geometry_field"/>
+    <label for="renderMethod">Render method</label>
+    <select id="renderMethod">
+        <option value="aggs">Show clusters of documents</option>
+        <option value="hits">Show individual documents</option>
+    </select>
+    <input type="button" id="show_data" value="Show layer" onclick="showLayer()"/>
+</div>
 <div id="map"></div>
-<!--<p><a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a></p>-->
+<p><a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a
+        href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a></p>
 <script>
-    // You can remove the following line if you don't need support for RTL (right-to-left) labels:
-    mapboxgl.setRTLTextPlugin('https://cdn.maptiler.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.1.2/mapbox-gl-rtl-text.js');
-    var map = new mapboxgl.Map({
+
+
+    let loaded = false;
+
+
+    const map = new mapboxgl.Map({
         container: 'map',
         style: 'https://api.maptiler.com/maps/streets/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL',
         center: [0, 0],
@@ -23,27 +55,114 @@
 
 
     map.on('load', function () {
-        map.addSource('parcels', {
+        loaded = true;
+
+    });
+
+    function showLayer() {
+        if (!loaded) {
+            return;
+        }
+
+        const indexName = document.getElementById('index').value;
+        const geometryFieldName = document.getElementById('geometry_field').value;
+        const renderMethod = document.getElementById('renderMethod').value;
+
+        if (!indexName || !geometryFieldName) {
+            alert('Cannot show layer. Missing index or geometry field name values');
+            return;
+        }
+
+        const sourceName = 'es_mvt';
+        const fillStyle = 'layer_fill';
+        const outlineStyle = 'layer_line';
+        const circleStyle = 'layer_point';
+
+        if (map.getSource(sourceName)) {
+            map.removeLayer(outlineStyle);
+            map.removeLayer(fillStyle);
+            map.removeLayer(circleStyle);
+            map.removeSource(sourceName);
+        }
+
+
+        map.addSource(sourceName, {
             'type': 'vector',
             'tiles': [
-                'http://localhost/tile?index=parcels&geometry=geometry&x={x}&y={y}&z={z}'
+                `http://localhost/tile?index=${indexName}&geometry=${geometryFieldName}&renderMethod=${renderMethod}&x={x}&y={y}&z={z}`
             ],
             'minzoom': 0,
             'maxzoom': 24
         });
+
+        const fillColor = 'rgb(255,0,0)';
+        const fillOpacity = 0.5;
+        const strokeColor = 'rgb(255,0,0)';
+        const strokeOpacity = 1;
+        const strokeWidth = 1;
+
         map.addLayer(
             {
-                'id': 'parcel_fill',
-                'type': 'fill',
-                'source': 'parcels',
-                'source-layer': 'hits',
+                'id': outlineStyle,
+                'type': 'line',
+                'source': sourceName,
+                'source-layer': renderMethod,
                 'paint': {
-                    'fill-opacity': 1,
-                    'fill-color': '#B9A888',
+                    'line-opacity': strokeOpacity,
+                    'line-color': strokeColor,
+                    'line-width': 1,
                 }
             }
         );
-    });
+        map.setFilter(outlineStyle, [
+            'any',
+            ['==', ['geometry-type'], 'Polygon'],
+            ['==', ['geometry-type'], 'MultiPolygon'],
+            ['==', ['geometry-type'], 'LineString'],
+            ['==', ['geometry-type'], 'MultiLineString'],
+        ]);
+
+        map.addLayer(
+            {
+                'id': fillStyle,
+                'type': 'fill',
+                'source': sourceName,
+                'source-layer': renderMethod,
+                'paint': {
+                    'fill-opacity': fillOpacity,
+                    'fill-color': fillColor,
+                }
+            }
+        );
+        map.setFilter(fillStyle, [
+            'any',
+            ['==', ['geometry-type'], 'Polygon'],
+            ['==', ['geometry-type'], 'MultiPolygon'],
+        ]);
+
+        map.addLayer(
+            {
+                'id': circleStyle,
+                'type': 'circle',
+                'source': sourceName,
+                'source-layer': renderMethod,
+                'paint': {
+                    'circle-radius': 4,
+                    'circle-color': fillColor,
+                    'circle-opacity': fillOpacity,
+                    'circle-stroke-color': strokeColor,
+                    'circle-stroke-opacity': strokeOpacity,
+                    'circle-stroke-width': strokeWidth,
+                }
+            }
+        );
+        map.setFilter(circleStyle, [
+            'any',
+            ['==', ['geometry-type'], 'Point'],
+            ['==', ['geometry-type'], 'MultiPoint'],
+        ]);
+
+    }
 
 
 </script>

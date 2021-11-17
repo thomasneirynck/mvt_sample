@@ -21,6 +21,7 @@ const server = http.createServer(async function (request, response) {
         const urlParse = url.parse(request.url);
         const params = querystring.decode(urlParse.query);
 
+        console.log(`Tile request: ${JSON.stringify(params)}`);
         try {
             const tile = await client.searchMvt({
                 index: params.index,
@@ -30,9 +31,9 @@ const server = http.createServer(async function (request, response) {
                 y: parseInt(params.y),
                 exact_bounds: true,
                 extent: 4096,
-                grid_precision: 0,
+                grid_precision: params.renderMethod === 'aggs' ? 8 : 0, // only create grid when necessary
                 grid_type: 'grid',
-                size: 10000,
+                size: params.renderMethod === 'hits' ? 10000 : 0,// only populate the hits layer when necessary
                 track_total_hits: false,
                 body: {}
             });
