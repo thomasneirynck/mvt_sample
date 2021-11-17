@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://cdn.maptiler.com/maplibre-gl-js/v1.13.0-rc.4/mapbox-gl.js"></script>
+    <link href="https://cdn.maptiler.com/maplibre-gl-js/v1.13.0-rc.4/mapbox-gl.css" rel="stylesheet" />
+    <style>
+        #map {position: absolute; top: 0; right: 0; bottom: 0; left: 0;}
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<!--<p><a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a></p>-->
+<script>
+    // You can remove the following line if you don't need support for RTL (right-to-left) labels:
+    mapboxgl.setRTLTextPlugin('https://cdn.maptiler.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.1.2/mapbox-gl-rtl-text.js');
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'https://api.maptiler.com/maps/streets/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL',
+        center: [0, 0],
+        zoom: 1.28
+    });
+
+
+    map.on('load', function () {
+        map.addSource('parcels', {
+            'type': 'vector',
+            'tiles': [
+                'http://localhost/tile?index=parcels&geometry=geometry&x={x}&y={y}&z={z}'
+            ],
+            'minzoom': 0,
+            'maxzoom': 24
+        });
+        map.addLayer(
+            {
+                'id': 'parcel_fill',
+                'type': 'fill',
+                'source': 'parcels',
+                'source-layer': 'hits',
+                'paint': {
+                    'fill-opacity': 1,
+                    'fill-color': '#B9A888',
+                }
+            }
+        );
+    });
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.15.0",
+    "axios": "^0.24.0",
+    "request": "^2.88.2"
+  }
+}
