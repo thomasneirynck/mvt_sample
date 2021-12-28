@@ -2,12 +2,13 @@ const http = require('http');
 const url = require('url');
 const querystring = require('querystring');
 const { Client } = require('@elastic/elasticsearch');
+const fs = require('fs');
 
-const elasticsearchHost = 'http://elastic:changeme@localhost:9200/';
+const elasticsearchHost = process.env.ES_URL || 'http://elastic:changeme@localhost:9203/';
 const client = new Client({ node: elasticsearchHost })
 
 
-const port = 80;
+const port = process.env.PORT || 8080;
 const server = http.createServer(async function (request, response) {
 
     // Set CORS headers
@@ -50,14 +51,19 @@ const server = http.createServer(async function (request, response) {
             // set response content
             response.write(tile.body);
             response.end();
-        }catch (e){
+        } catch (e) {
             console.error(e);
             response.end();
         }
+    } else if (request.url === '/'){
+        response.writeHead(200, { 'Content-Type': 'text/html' });
+        response.write(fs.readFileSync('./index.html'));
+        response.end('');
     } else {
-        response.end('Foobar');
+        response.writeHead(404);
+        response.write('404 - Not found');
+        response.end();
     }
-
 });
 
 server.listen(port);
