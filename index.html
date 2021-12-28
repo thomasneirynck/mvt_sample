@@ -2,61 +2,84 @@
 <html>
 <head>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <script src="https://cdn.maptiler.com/maplibre-gl-js/v1.13.0-rc.4/mapbox-gl.js"></script>
-    <link href="https://cdn.maptiler.com/maplibre-gl-js/v1.13.0-rc.4/mapbox-gl.css" rel="stylesheet" />
+    <script src='https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css" />
     <style>
+        :root {
+            --spacing: .25rem;
+            --font-size: 14px;
+            --form-element-spacing-vertical: .5rem;
+            --form-element-spacing-horizontal: .25rem;
+        }
+
         #map {
             position: absolute;
             top: 0;
             right: 0;
             bottom: 0;
             left: 0;
-            z-index: 1
+            z-index: 1;
         }
 
         #form {
             position: fixed;
             top: 10px;
             right: 10px;
-            background-color: rgba(255, 255, 255, 0.6);
+            background-color: rgba(255, 255, 255, 0.75);
             z-index: 2;
-            padding: 2
+            padding: 10px;
+        }
+
+        #show_data {
+            margin-top: var(--form-element-spacing-vertical);
+        }
+
+        legend {
+            font-size: calc(var(--font-size) * 1.3);
         }
     </style>
 </head>
 <body>
 <div id="form">
-    <label for="index">Elasticsearch index name</label>
-    <input type="text" id="index"/>
-    <label for="geometry_field">Field name of geometry</label>
-    <input type="text" id="geometry_field"/>
-    <label for="renderMethod">Render method</label>
-    <select id="renderMethod">
-        <option value="aggs">Show clusters of documents</option>
-        <option value="hits">Show individual documents</option>
-    </select>
-    <input type="button" id="show_data" value="Show layer" onclick="showLayer()"/>
+    <fieldset>
+        <legend>Add an Elasticsearch layer</legend>
+        <div class="">
+            <label for="index">Index
+                <input required type="text" id="index" />
+            </label>
+            <label for="geometry_field">Geometry field
+                <input required type="text" id="geometry_field" />
+            </label>
+            <label>Layer type</label>
+            <div class="grid">
+                <label for="aggs"><small>Aggregate</small>
+                    <input type="radio" name="renderMethod" id="aggs" value="aggs" checked />
+                </label>
+                <label for="hits"><small>Documents</small>
+                    <input type="radio" name="renderMethod" id="hits" value="hits" />
+                </label>
+            </div>
+            <input type="button" id="show_data" value="Show" onclick="showLayer()" />
+        </div>
+    </fieldset>
 </div>
 <div id="map"></div>
-<p><a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a
-        href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a></p>
 <script>
 
 
     let loaded = false;
 
 
-    const map = new mapboxgl.Map({
+    const map = new maplibregl.Map({
         container: 'map',
         style: 'https://api.maptiler.com/maps/streets/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL',
         center: [0, 0],
         zoom: 1.28
     });
 
-
     map.on('load', function () {
         loaded = true;
-
     });
 
     function showLayer() {
@@ -66,7 +89,7 @@
 
         const indexName = document.getElementById('index').value;
         const geometryFieldName = document.getElementById('geometry_field').value;
-        const renderMethod = document.getElementById('renderMethod').value;
+        const renderMethod = document.querySelector( 'input[name="renderMethod"]:checked' ).value;
 
         if (!indexName || !geometryFieldName) {
             alert('Cannot show layer. Missing index or geometry field name values');
@@ -88,8 +111,9 @@
 
         map.addSource(sourceName, {
             'type': 'vector',
-            'tiles': [
-                `http://localhost/tile?index=${indexName}&geometry=${geometryFieldName}&renderMethod=${renderMethod}&x={x}&y={y}&z={z}`
+            'tiles': [ 
+                window.location.href + 
+                `tile?index=${indexName}&geometry=${geometryFieldName}&renderMethod=${renderMethod}&x={x}&y={y}&z={z}`
             ],
             'minzoom': 0,
             'maxzoom': 24
@@ -165,6 +189,14 @@
     }
 
 
+    document.onkeydown = function (evt) {
+        var keyCode = evt
+            ? evt.which
+                ? evt.which
+                : evt.keyCode
+            : event.keyCode;
+        if (keyCode == 13) { showLayer(); }
+    };
 </script>
 </body>
 </html>
