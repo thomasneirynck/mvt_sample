@@ -52,10 +52,14 @@ const server = http.createServer(async function (request, response) {
             response.end();
         }catch (e){
             console.error(e);
+            response.writeHead(500);
+            response.write('Foobar');
             response.end();
         }
     } else {
-        response.end('Foobar');
+        response.writeHead(404);
+        response.write('Page does not exist')
+        response.end();
     }
 
 });
