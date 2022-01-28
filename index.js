@@ -53,6 +53,8 @@ const server = http.createServer(async function (request, response) {
             response.end();
         } catch (e) {
             console.error(e);
+            response.writeHead(500);
+            response.write('Foobar');
             response.end();
         }
     } else if (request.url === '/'){
@@ -61,7 +63,7 @@ const server = http.createServer(async function (request, response) {
         response.end('');
     } else {
         response.writeHead(404);
-        response.write('404 - Not found');
+        response.write('Page does not exist')
         response.end();
     }
 });
