@@ -17,10 +17,9 @@ Install dependencies with `npm`. npm is included with the NodeJS runtime.
 
 > npm install
 
+#### Start Elasticsearch
 
-Run an [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) instance.
-
-The sample code assumes it is running on `http://localhost:9200`.
+Run an [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) instance. The sample code assumes Elasticsearch is running on `http://localhost:9200`. Note: Hexagon aggregation requires a subscription or trial license.
 
 
 #### Run TMS server

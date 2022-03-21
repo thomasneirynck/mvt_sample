@@ -22,6 +22,15 @@ const server = http.createServer(async function (request, response) {
         const params = querystring.decode(urlParse.query);
 
         console.log(`Tile request: ${JSON.stringify(params)}`);
+
+        // Precision level for aggregation cells. Accepts 0-8. Larger numbers result in smaller aggregation cells. If 0, results don’t include the aggs layer.
+        let gridPrecision = 0;
+        if (params.renderMethod === 'grid') {
+            gridPrecision = 8;
+        } else if (params.renderMethod === 'hex') {
+            gridPrecision = 5;
+        }
+
         try {
             const tile = await client.searchMvt({
                 index: params.index,
@@ -31,7 +40,8 @@ const server = http.createServer(async function (request, response) {
                 y: parseInt(params.y),
                 exact_bounds: true,
                 extent: 4096,
-                grid_precision: params.renderMethod === 'aggs' ? 8 : 0, // only create grid when necessary
+                grid_agg: params.renderMethod === 'grid' ? 'geotile' : 'geohex',
+                grid_precision: gridPrecision,
                 grid_type: 'grid',
                 size: params.renderMethod === 'hits' ? 10000 : 0,// only populate the hits layer when necessary
                 track_total_hits: false,
