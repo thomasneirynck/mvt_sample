@@ -54,8 +54,11 @@
             </label>
             <label>Layer type</label>
             <div class="grid">
-                <label for="aggs"><small>Aggregate</small>
-                    <input type="radio" name="renderMethod" id="aggs" value="aggs" checked />
+                <label for="grid"><small>Grid</small>
+                    <input type="radio" name="renderMethod" id="grid" value="grid" checked />
+                </label>
+                <label for="hex"><small>Hexagons</small>
+                    <input type="radio" name="renderMethod" id="hex" value="hex" checked />
                 </label>
                 <label for="hits"><small>Documents</small>
                     <input type="radio" name="renderMethod" id="hits" value="hits" />
@@ -92,15 +95,27 @@
         const geometryFieldName = document.getElementById('geometry_field').value;
         const renderMethod = document.querySelector( 'input[name="renderMethod"]:checked' ).value;
 
+        if (!indexName) {
+            alert('Cannot show layer. Please set "Elasticsearch index name"');
+            return;
+        }
         if (!indexName || !geometryFieldName) {
-            alert('Cannot show layer. Missing index or geometry field name values');
+            alert('Cannot show layer. Please set "Field name of geometry"');
             return;
         }
 
-        const sourceName = 'es_mvt';
-        const fillStyle = 'layer_fill';
-        const outlineStyle = 'layer_line';
-        const circleStyle = 'layer_point';
+        const sourceName = 'es_mvt'; // arbitrary value, you can use any string you like
+        const fillStyle = 'layer_fill'; // arbitrary value, you can use any string you like
+        const outlineStyle = 'layer_line'; // arbitrary value, you can use any string you like
+        const circleStyle = 'layer_point'; /// arbitrary value, you can use any string you like
+        // Elasticsearch vector tile API returns tiles with 3 layers
+        // "hits": Contains a feature for each document (hit) matching search criteria.
+        // "aggs": Contains a feature for each bucket returned from geotile_grid or geohex_grid aggregation.
+        // "meta": Contains a single feature with meta data about the feature properties.
+        //         These are useful for calculating dynamic style ranges but not used in this example.
+        // 
+        // 'vector' layer specification requires "source-layer" property. This property identifies the layer to display from the tile.
+        const sourceLayer = renderMethod === "grid" || renderMethod === "hex" ? "aggs" : "hits"; // not arbitrary value - must be layer name provided from tile
 
         if (map.getSource(sourceName)) {
             map.removeLayer(outlineStyle);
@@ -108,7 +123,6 @@
             map.removeLayer(circleStyle);
             map.removeSource(sourceName);
         }
-
 
         map.addSource(sourceName, {
             'type': 'vector',
@@ -131,7 +145,7 @@
                 'id': outlineStyle,
                 'type': 'line',
                 'source': sourceName,
-                'source-layer': renderMethod,
+                'source-layer': sourceLayer,
                 'paint': {
                     'line-opacity': strokeOpacity,
                     'line-color': strokeColor,
@@ -152,7 +166,7 @@
                 'id': fillStyle,
                 'type': 'fill',
                 'source': sourceName,
-                'source-layer': renderMethod,
+                'source-layer': sourceLayer,
                 'paint': {
                     'fill-opacity': fillOpacity,
                     'fill-color': fillColor,
@@ -170,7 +184,7 @@
                 'id': circleStyle,
                 'type': 'circle',
                 'source': sourceName,
-                'source-layer': renderMethod,
+                'source-layer': sourceLayer,
                 'paint': {
                     'circle-radius': 4,
                     'circle-color': fillColor,
