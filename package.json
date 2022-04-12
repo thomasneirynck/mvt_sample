@@ -1,7 +1,11 @@
 {
+  "name": "mvt_sample",
+  "version": "0.0.1",
   "dependencies": {
     "@elastic/elasticsearch": "^7.15.0",
-    "axios": "^0.24.0",
     "request": "^2.88.2"
+  },
+  "scripts": {
+    "start": "node index.js"
   }
 }
