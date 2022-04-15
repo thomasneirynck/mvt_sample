@@ -17,7 +17,6 @@ const server = http.createServer(async function (request, response) {
     response.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
     response.setHeader('Access-Control-Allow-Headers', '*');
 
-    // http://localhost/tile?index=parcels&geometry=geometry&x={x}&y={y}&z={z}
     if (request.url.startsWith('/tile')) {
         const urlParse = url.parse(request.url);
         const params = querystring.decode(urlParse.query);
