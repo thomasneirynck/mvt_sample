@@ -30,6 +30,7 @@
             background-color: rgba(255, 255, 255, 0.75);
             z-index: 2;
             padding: 10px;
+            /*width: 500px;*/
         }
 
         #show_data {
@@ -43,26 +44,19 @@
 </head>
 <body>
 <div id="form">
-    <fieldset>
         <legend>Add an Elasticsearch layer</legend>
         <div class="">
-            <label for="index">Index
+            <label for="index">Index        </label>
                 <input required type="text" id="index" />
-            </label>
-            <label for="geometry_field">Geometry field
+
+            <label for="geometry_field">Geometry field    </label>
                 <input required type="text" id="geometry_field" />
-            </label>
+
             <label>Layer type</label>
-            <div class="grid">
-                <label for="grid"><small>Grid</small>
-                    <input type="radio" name="renderMethod" id="grid" value="grid" checked />
-                </label>
-                <label for="hex"><small>Hexagons</small>
-                    <input type="radio" name="renderMethod" id="hex" value="hex" checked />
-                </label>
-                <label for="hits"><small>Documents</small>
-                    <input type="radio" name="renderMethod" id="hits" value="hits" />
-                </label>
+            <div>
+                <input type="radio" name="renderMethod" id="grid" value="grid" checked /><label for="grid"><small>Grid</small></label><br/>
+                <input type="radio" name="renderMethod" id="hex" value="hex"  /><label for="hex"><small>Hexagons</small></label><br/>
+                <input type="radio" name="renderMethod" id="hits" value="hits" /><label for="hits"><small>Documents</small></label>
             </div>
             <input type="button" id="show_data" value="Show" onclick="showLayer()" />
         </div>
@@ -77,9 +71,20 @@
 
     const map = new maplibregl.Map({
         container: 'map',
-        style: 'https://api.maptiler.com/maps/streets/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL',
         center: [0, 0],
         zoom: 1.28
+    });
+    map.addSource('roadmap', {
+        type: 'raster',
+        tiles: ['https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}'],
+        tileSize: 256,
+        scheme: 'xyz',
+    });
+
+    map.addLayer({
+        id: 'base-layer',
+        type: 'raster',
+        source: 'roadmap',
     });
 
     map.on('load', function () {
@@ -126,9 +131,8 @@
 
         map.addSource(sourceName, {
             'type': 'vector',
-            'tiles': [ 
-                window.location.href + 
-                `tile?index=${indexName}&geometry=${geometryFieldName}&renderMethod=${renderMethod}&x={x}&y={y}&z={z}`
+            'tiles': [
+                `http://localhost/tile?index=${indexName}&geometry=${geometryFieldName}&renderMethod=${renderMethod}&x={x}&y={y}&z={z}`
             ],
             'minzoom': 0,
             'maxzoom': 24

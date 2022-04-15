@@ -4,11 +4,11 @@ const querystring = require('querystring');
 const { Client } = require('@elastic/elasticsearch');
 const fs = require('fs');
 
-const elasticsearchHost = process.env.ES_URL || 'http://elastic:changeme@localhost:9203/';
+const elasticsearchHost = process.env.ES_URL || 'http://elastic:changeme@localhost:9200/';
 const client = new Client({ node: elasticsearchHost })
 
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 80;
 const server = http.createServer(async function (request, response) {
 
     // Set CORS headers
