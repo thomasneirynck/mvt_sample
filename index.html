@@ -132,7 +132,8 @@
         map.addSource(sourceName, {
             'type': 'vector',
             'tiles': [
-                `http://localhost/tile?index=${indexName}&geometry=${geometryFieldName}&renderMethod=${renderMethod}&x={x}&y={y}&z={z}`
+                window.location.href +
+                `tile?index=${indexName}&geometry=${geometryFieldName}&renderMethod=${renderMethod}&x={x}&y={y}&z={z}`
             ],
             'minzoom': 0,
             'maxzoom': 24
