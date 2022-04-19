@@ -46,10 +46,10 @@
 <div id="form">
         <legend>Add an Elasticsearch layer</legend>
         <div class="">
-            <label for="index">Index        </label>
+            <label for="index">Index</label>
                 <input required type="text" id="index" />
 
-            <label for="geometry_field">Geometry field    </label>
+            <label for="geometry_field">Geometry field</label>
                 <input required type="text" id="geometry_field" />
 
             <label>Layer type</label>
@@ -58,6 +58,10 @@
                 <input type="radio" name="renderMethod" id="hex" value="hex"  /><label for="hex"><small>Hexagons</small></label><br/>
                 <input type="radio" name="renderMethod" id="hits" value="hits" /><label for="hits"><small>Documents</small></label>
             </div>
+
+            <label for="search">Search</label>
+                <input required type="text" id="search" />
+
             <input type="button" id="show_data" value="Show" onclick="showLayer()" />
         </div>
     </fieldset>
@@ -99,6 +103,7 @@
         const indexName = document.getElementById('index').value;
         const geometryFieldName = document.getElementById('geometry_field').value;
         const renderMethod = document.querySelector( 'input[name="renderMethod"]:checked' ).value;
+        const searchQuery = document.getElementById('search').value;
 
         if (!indexName) {
             alert('Cannot show layer. Please set "Elasticsearch index name"');
@@ -132,7 +137,7 @@
         map.addSource(sourceName, {
             'type': 'vector',
             'tiles': [
-                `http://localhost/tile?index=${indexName}&geometry=${geometryFieldName}&renderMethod=${renderMethod}&x={x}&y={y}&z={z}`
+                `http://localhost/tile?index=${indexName}&geometry=${geometryFieldName}&renderMethod=${renderMethod}&x={x}&y={y}&z={z}&searchQuery=${searchQuery}`
             ],
             'minzoom': 0,
             'maxzoom': 24

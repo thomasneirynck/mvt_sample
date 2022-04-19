@@ -45,7 +45,14 @@ const server = http.createServer(async function (request, response) {
                 grid_type: 'grid',
                 size: params.renderMethod === 'hits' ? 10000 : 0,// only populate the hits layer when necessary
                 track_total_hits: false,
-                body: {}
+                body: params.searchQuery ? {
+                    "query": {
+                        "query_string": {
+                            "query": params.searchQuery,
+                            "analyze_wildcard": true
+                        }
+                    }
+                } : {}
             });
 
             // set response header
