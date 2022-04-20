@@ -49,10 +49,10 @@ const server = http.createServer(async function (request, response) {
             });
 
             // set response header
-            response.writeHead(200, {
+            response.writeHead(tile.statusCode, {
                 'content-disposition': 'inline',
-                'content-length': tile ? `${tile.body.length}` : `0`,
-                'Content-Type': 'application/x-protobuf',
+                'content-length': 'content-length' in tile.headers ? tile.headers['content-length'] : `0`,
+                'Content-Type': 'content-type' in tile.headers ? tile.headers['content-type'] : 'application/x-protobuf',
                 'Cache-Control': `public, max-age=0`,
                 'Last-Modified': `${new Date().toUTCString()}`,
             });
@@ -62,8 +62,8 @@ const server = http.createServer(async function (request, response) {
             response.end();
         } catch (e) {
             console.error(e);
-            response.writeHead(500);
-            response.write('Foobar');
+            response.writeHead('statusCode' in e ? e.statusCode : 500);
+            response.write(e?.meta?.body ? JSON.stringify(e?.meta?.body) : '');
             response.end();
         }
     } else if (request.url === '/'){
