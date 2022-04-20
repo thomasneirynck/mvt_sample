@@ -31,6 +31,24 @@ const server = http.createServer(async function (request, response) {
             gridPrecision = 5;
         }
 
+        const body = {
+            exact_bounds: true,
+            extent: 4096,
+            grid_agg: params.renderMethod === 'grid' ? 'geotile' : 'geohex',
+            grid_precision: gridPrecision,
+            grid_type: 'grid',
+            size: params.renderMethod === 'hits' ? 10000 : 0,// only populate the hits layer when necessary
+            track_total_hits: false,
+            query: params.searchQuery ? { //use Lucene query_string syntax
+                "query_string": {
+                    "query": params.searchQuery,
+                    "analyze_wildcard": true
+                }
+            } : {
+                "match_all": {}
+            }
+        }
+
         try {
             const tile = await client.searchMvt({
                 index: params.index,
@@ -38,14 +56,7 @@ const server = http.createServer(async function (request, response) {
                 zoom: parseInt(params.z),
                 x: parseInt(params.x),
                 y: parseInt(params.y),
-                exact_bounds: true,
-                extent: 4096,
-                grid_agg: params.renderMethod === 'grid' ? 'geotile' : 'geohex',
-                grid_precision: gridPrecision,
-                grid_type: 'grid',
-                size: params.renderMethod === 'hits' ? 10000 : 0,// only populate the hits layer when necessary
-                track_total_hits: false,
-                body: {}
+                body
             });
 
             // set response header
