@@ -2,7 +2,7 @@
   "name": "mvt_sample",
   "version": "0.0.1",
   "dependencies": {
-    "@elastic/elasticsearch": "^7.15.0",
+    "@elastic/elasticsearch": "^8.1.0",
     "request": "^2.88.2"
   },
   "scripts": {
