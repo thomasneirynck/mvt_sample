@@ -56,8 +56,8 @@ const server = http.createServer(async function (request, response) {
                 zoom: parseInt(params.z),
                 x: parseInt(params.x),
                 y: parseInt(params.y),
-                body
-            });
+                ...body,
+            }, { meta: true });
 
             // set response header
             response.writeHead(tile.statusCode, {

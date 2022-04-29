@@ -23,11 +23,11 @@ Run an [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) instance.
 
 #### Run TMS server
 
-To start the TMS server, run the node script. `node` is included with the NodeJS runtime. It will start a server in `localhost` and `PORT` environment variable or `8080` by default.
+To start the TMS server, run the node script. `node` is included with the NodeJS runtime. It will start a server in `localhost` and `PORT` environment variable or `80` by default.
 
 > node ./index.js
 
 #### Demo page
 
-To view the web page, just open up `http://localhost:8080` or `http://localhost:{PORT}` browser.
+To view the web page, just open up `http://localhost:80` or `http://localhost:{PORT}` browser.
 
